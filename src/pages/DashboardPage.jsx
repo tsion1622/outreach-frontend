@@ -17,8 +17,11 @@ const DashboardPage = () => {
   });
 
   const totalContacts = contactsData?.data?.count || 0;
-  const totalCampaigns = campaignsData?.data?.length || 0;
-  const activeCampaigns = campaignsData?.data?.filter(c => c.status === 'sending')?.length || 0;
+  const totalCampaigns = Array.isArray(campaignsData?.data) ? campaignsData.data.length : 0;
+  const activeCampaigns = Array.isArray(campaignsData?.data)
+  ? campaignsData.data.filter(c => c.status === 'sending').length
+  : 0;
+
 
   const stats = [
     {
@@ -51,8 +54,9 @@ const DashboardPage = () => {
     },
   ];
 
-  const recentCampaigns = campaignsData?.data?.slice(0, 5) || [];
+ 
 
+  const recentCampaigns = Array.isArray(campaignsData?.data) ? campaignsData.data.slice(0, 5) : [];
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
