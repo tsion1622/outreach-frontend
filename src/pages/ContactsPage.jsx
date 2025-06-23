@@ -39,7 +39,7 @@ const ContactsPage = () => {
     queryFn: () => contactsAPI.getAll({
       page: currentPage,
       search: searchTerm || undefined,
-      status: statusFilter || undefined,
+      status: statusFilter === 'all' ? undefined : statusFilter,
     }),
   });
 
@@ -202,18 +202,19 @@ const ContactsPage = () => {
                 />
               </div>
               
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
-                  <SelectItem value="Success">Success</SelectItem>
-                  <SelectItem value="Failed">Failed</SelectItem>
-                  <SelectItem value="Imported">Imported</SelectItem>
-                  <SelectItem value="Skipped">Skipped</SelectItem>
-                </SelectContent>
-              </Select>
+             <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="Success">Success</SelectItem>
+                <SelectItem value="Failed">Failed</SelectItem>
+                <SelectItem value="Imported">Imported</SelectItem>
+                <SelectItem value="Skipped">Skipped</SelectItem>
+              </SelectContent>
+            </Select>
+
             </div>
             
             {selectedContacts.size > 0 && (
