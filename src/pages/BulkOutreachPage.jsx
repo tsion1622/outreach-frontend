@@ -57,32 +57,30 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // Poll discovery task status
-  const { data: discoveryStatus } = useQuery({
+  // ✅ Updated: Poll discovery task status
+  useQuery({
     queryKey: ['discoveryStatus', currentDiscoveryTask?.id],
     queryFn: () => domainDiscoveryAPI.getStatus(currentDiscoveryTask.id),
-    enabled:
-      !!currentDiscoveryTask &&
-      currentDiscoveryTask.status !== 'completed' &&
-      currentDiscoveryTask.status !== 'failed',
-    refetchInterval: 2000,
+    enabled: !!currentDiscoveryTask?.id,
+    refetchInterval: (data) => {
+      const status = data?.data?.status;
+      return status === 'completed' || status === 'failed' ? false : 2000;
+    },
     onSuccess: (response) => {
-      console.log('Polled discovery status:', response.data);
       setCurrentDiscoveryTask(response.data);
     },
   });
 
-  // Poll scraping task status
-  const { data: scrapingStatus } = useQuery({
+  // ✅ Updated: Poll scraping task status
+  useQuery({
     queryKey: ['scrapingStatus', currentScrapingTask?.id],
     queryFn: () => scrapingAPI.getStatus(currentScrapingTask.id),
-    enabled:
-      !!currentScrapingTask &&
-      currentScrapingTask.status !== 'completed' &&
-      currentScrapingTask.status !== 'failed',
-    refetchInterval: 2000,
+    enabled: !!currentScrapingTask?.id,
+    refetchInterval: (data) => {
+      const status = data?.data?.status;
+      return status === 'completed' || status === 'failed' ? false : 2000;
+    },
     onSuccess: (response) => {
-      console.log('Polled scraping status:', response.data);
       setCurrentScrapingTask(response.data);
     },
   });
