@@ -61,9 +61,13 @@ const BulkOutreachPage = () => {
   const { data: discoveryStatus } = useQuery({
     queryKey: ['discoveryStatus', currentDiscoveryTask?.id],
     queryFn: () => domainDiscoveryAPI.getStatus(currentDiscoveryTask.id),
-    enabled: !!currentDiscoveryTask && currentDiscoveryTask.status !== 'completed' && currentDiscoveryTask.status !== 'failed',
+    enabled:
+      !!currentDiscoveryTask &&
+      currentDiscoveryTask.status !== 'completed' &&
+      currentDiscoveryTask.status !== 'failed',
     refetchInterval: 2000,
     onSuccess: (response) => {
+      console.log('Polled discovery status:', response.data);
       setCurrentDiscoveryTask(response.data);
     },
   });
@@ -72,9 +76,13 @@ const BulkOutreachPage = () => {
   const { data: scrapingStatus } = useQuery({
     queryKey: ['scrapingStatus', currentScrapingTask?.id],
     queryFn: () => scrapingAPI.getStatus(currentScrapingTask.id),
-    enabled: !!currentScrapingTask && currentScrapingTask.status !== 'completed' && currentScrapingTask.status !== 'failed',
+    enabled:
+      !!currentScrapingTask &&
+      currentScrapingTask.status !== 'completed' &&
+      currentScrapingTask.status !== 'failed',
     refetchInterval: 2000,
     onSuccess: (response) => {
+      console.log('Polled scraping status:', response.data);
       setCurrentScrapingTask(response.data);
     },
   });
@@ -82,7 +90,7 @@ const BulkOutreachPage = () => {
   const handleStartDiscovery = (e) => {
     e.preventDefault();
     if (!industryInput.trim()) return;
-    
+
     discoveryMutation.mutate({
       industry_or_seed_domain: industryInput.trim(),
     });
@@ -90,7 +98,7 @@ const BulkOutreachPage = () => {
 
   const handleStartScraping = () => {
     if (!currentDiscoveryTask || currentDiscoveryTask.status !== 'completed') return;
-    
+
     scrapingMutation.mutate({
       discovery_task_id: currentDiscoveryTask.id,
     });
@@ -151,7 +159,7 @@ const BulkOutreachPage = () => {
                 disabled={discoveryMutation.isPending}
               />
             </div>
-            
+
             <Button
               type="submit"
               disabled={discoveryMutation.isPending || !industryInput.trim()}
@@ -176,9 +184,9 @@ const BulkOutreachPage = () => {
                 <span className="text-sm font-medium">Discovery Status:</span>
                 {getStatusBadge(currentDiscoveryTask.status)}
               </div>
-              
+
               <Progress value={getProgress(currentDiscoveryTask)} className="w-full" />
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500">Task ID:</span>
@@ -256,9 +264,9 @@ const BulkOutreachPage = () => {
                   <span className="text-sm font-medium">Scraping Status:</span>
                   {getStatusBadge(currentScrapingTask.status)}
                 </div>
-                
+
                 <Progress value={getScrapingProgress(currentScrapingTask)} className="w-full" />
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Progress:</span>
@@ -298,4 +306,3 @@ const BulkOutreachPage = () => {
 };
 
 export default BulkOutreachPage;
-
