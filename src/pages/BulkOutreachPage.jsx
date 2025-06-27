@@ -21,7 +21,14 @@ const BulkOutreachPage = () => {
   const discoveryMutation = useMutation({
     mutationFn: domainDiscoveryAPI.initiate,
     onSuccess: (response) => {
-      setCurrentDiscoveryTask(response.data);
+      // Only update if no completed discovery exists
+      if (
+        !currentDiscoveryTask ||
+        ['pending', 'running', 'failed'].includes(currentDiscoveryTask.status)
+      ) {
+        setCurrentDiscoveryTask(response.data);
+      }
+
       addNotification({
         type: 'success',
         title: 'Discovery Started',
@@ -57,7 +64,7 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // ✅ Updated: Poll discovery task status
+  // Poll discovery task status
   useQuery({
     queryKey: ['discoveryStatus', currentDiscoveryTask?.id],
     queryFn: () => domainDiscoveryAPI.getStatus(currentDiscoveryTask.id),
@@ -71,7 +78,7 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // ✅ Updated: Poll scraping task status
+  // Poll scraping task status
   useQuery({
     queryKey: ['scrapingStatus', currentScrapingTask?.id],
     queryFn: () => scrapingAPI.getStatus(currentScrapingTask.id),
