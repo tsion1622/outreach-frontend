@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { domainDiscoveryAPI, scrapingAPI } from '../lib/api';
 import { useAppStore } from '../lib/store';
@@ -17,15 +17,11 @@ const BulkOutreachPage = () => {
   const [currentScrapingTask, setCurrentScrapingTask] = useState(null);
   const { addNotification } = useAppStore();
 
-  // Domain Discovery Mutation
+  // Discovery mutation
   const discoveryMutation = useMutation({
     mutationFn: domainDiscoveryAPI.initiate,
     onSuccess: (response) => {
-      // Only update if no completed discovery exists
-      if (
-        !currentDiscoveryTask ||
-        ['pending', 'running', 'failed'].includes(currentDiscoveryTask.status)
-      ) {
+      if (!currentDiscoveryTask || ['pending', 'running', 'failed'].includes(currentDiscoveryTask.status)) {
         setCurrentDiscoveryTask(response.data);
       }
 
@@ -44,7 +40,7 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // Scraping Mutation
+  // Scraping mutation
   const scrapingMutation = useMutation({
     mutationFn: scrapingAPI.initiate,
     onSuccess: (response) => {
@@ -64,11 +60,15 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // Poll discovery task status
+  // ✅ Discovery Status Polling (ensures token exists)
   useQuery({
     queryKey: ['discoveryStatus', currentDiscoveryTask?.id],
-    queryFn: () => domainDiscoveryAPI.getStatus(currentDiscoveryTask.id),
-    enabled: !!currentDiscoveryTask?.id,
+    queryFn: () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Auth token missing');
+      return domainDiscoveryAPI.getStatus(currentDiscoveryTask.id);
+    },
+    enabled: !!currentDiscoveryTask?.id && !!localStorage.getItem('authToken'),
     refetchInterval: (data) => {
       const status = data?.data?.status;
       return status === 'completed' || status === 'failed' ? false : 2000;
@@ -78,7 +78,7 @@ const BulkOutreachPage = () => {
     },
   });
 
-  // Poll scraping task status
+  // Scraping Status Polling
   useQuery({
     queryKey: ['scrapingStatus', currentScrapingTask?.id],
     queryFn: () => scrapingAPI.getStatus(currentScrapingTask.id),
