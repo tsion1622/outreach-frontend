@@ -6,6 +6,7 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'any-value', // This bypasses ngrok browser warning
   },
 });
 
@@ -99,4 +100,3 @@ export const trackingAPI = {
 };
 
 export default api;
-
